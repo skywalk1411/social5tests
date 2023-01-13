@@ -26,21 +26,18 @@ const resizeThumb = async (image, object) => {
     return true;
 };
 CommentRoutes.post('/', async function (req, res) {
-    console.log('file=> size: ', req.files.image.size, ' path: ', req.files.image.path, ' name: ', req.files.image.name, ' type: ', req.files.image.type, ' hash: ', req.files.image.hash, ' modAt: ', req.files.image.lastModifiedDate);
-    console.log('fields=>', req.fields)
+    
     if (req.fields?.title && req.fields?.message) {
         //has title and message
         if (req.files?.image?.size !== 0 && req.files?.image?.name !== '') {
-            console.log('if image')
             //has file image
             const imageFile = path.parse(req.files.image.path);
-            console.log(imageFile)
+            console.log('file=> size: ', req.files.image.size, ' path: ', req.files.image.path, ' name: ', req.files.image.name, ' type: ', req.files.image.type, ' hash: ', req.files.image.hash, ' modAt: ', req.files.image.lastModifiedDate);
+            console.log('fields=>', req.fields)
             console.log('image=> root: ', imageFile.root, ' dir: ', imageFile.dir, ' base: ', imageFile.base, ' ext: ', imageFile.ext, ' name: ', imageFile.name);
             const loadPath = `${path.join(imageFile.dir, imageFile.base)}`;
             const finalPath = `${path.join(imageFile.dir, imageFile.name+'.png')}`;
-            console.log(loadPath, ' ', finalPath, typeof(loadPath), typeof(finalPath))
             try {
-
                 await jimp.read(loadPath)
                     .then(image => {
                         return image
@@ -51,35 +48,6 @@ CommentRoutes.post('/', async function (req, res) {
                     .catch(err => {
                         throw err;
                     })
-                /*const transform = await resizeThumb(finalPath,imageFile);
-                switch (transform) {
-                    case true:
-                        console.log('ok');
-                        break;
-                    case false:
-                        console.log('nay');*/
-                /*await jimp.read(imageFile)
-                    .then(image=> {
-                        return image
-                        .resize(100,jimp.AUTO)
-                        .quality(80)
-                        .writeAsync(finalPath)
-                    })
-                    .catch(err=> {
-                        throw err;
-                    })*/
-                /*images(imageFile)
-                .size(100)
-                .encode("jpg")
-                .save(finalPath, { quality: 80})*/
-                /*sharp(req.files.image.path)
-                .resize({
-                    fit: sharp.fit.contain,
-                    width: 100,
-                })
-                .toFormat('jpg')*/
-                //.png({ palette: true })
-                //.toFile(finalPath)
             } catch (err) {
                 if (err) {
                     console.log(err)
@@ -102,13 +70,11 @@ CommentRoutes.post('/', async function (req, res) {
             fs.unlink(req.files.image.path, (err) => {
                 if (err) throw err;
             })
-            console.log(req.files.image.filepath, req.files.image.mimetype, req.files.image.hash);
-            console.log(req.files.image.name, req.files.image.size);
-            res.render('home/home', { received: { title: req.fields?.title, message: req.fields?.message }, image: `/upload/${req.files.image.name}` })
+            res.render('home/home', { received: { title: req.fields?.title, message: req.fields?.message }, imagez: `/upload/${imageFile.name}.png` })
         }
         else {
             //error no image
-            res.render('home/home', { received: { title: req.fields?.title, message: req.fields?.message }, image: 'empty.png' })
+            res.render('home/home', { received: { title: req.fields?.title, message: req.fields?.message }, imagez: 'empty.png' })
         }
     }
     else {

@@ -36,7 +36,8 @@
                 <div class="row">
                     <div class="col">
                         <p><%= `${JSON.stringify(received)}` %></p>
-                        <p><img class="img-fluid" src="<%=image%>" alt="image"></p>
+                        <p><%= `${imagez}` %></p>
+                        <p><img class="img-fluid" src="<%=imagez%>" alt="image"></p>
                         <form id="newmessage" method="POST" action="/api" enctype="multipart/form-data">
                             <input id="title" name="title" type="text" class="form-control" placeholder="title" max="255" maxlength="255" min="1" minlength="1" required>
                             <input id="message" name="message" type="text" class="form-control" placeholder="message" max="255" maxlength="255" min="1" minlength="1" required>
