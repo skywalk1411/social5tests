@@ -57,7 +57,7 @@ CommentRoutes.post('/', async function (req, res) {
                                 return image
                                     .resize(100, jimp.AUTO)
                                     .quality(80)
-                                    .writeAsync()
+                                    .writeAsync(finalPath)
                             })
                             .catch(err => {
                                 throw err;
