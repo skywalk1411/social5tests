@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
+    <title>social5 server tests</title>
+    <link rel="stylesheet" href="/bootstrap/5.3.0-alpha1/css/bootstrap.min.css"
+        integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <script src="/bootstrap/5.3.0-alpha1/js/bootstrap.bundle.min.js"
+        integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+        crossorigin="anonymous"></script>
+    <style>
+        .nav-scroller {
+            position: relative;
+            z-index: 2;
+            height: 2.75rem;
+            overflow-y: hidden;
+        }
+        .nav-scroller .nav {
+            display: flex;
+            flex-wrap: nowrap;
+            padding-bottom: 1rem;
+            margin-top: -1px;
+            overflow-x: auto;
+            text-align: center;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col">
+                        <p><%= `${JSON.stringify(received)}` %></p>
+                        <p><img class="img-fluid" src="<%=image%>" alt="image"></p>
+                        <form id="newmessage" method="POST" action="/api" enctype="multipart/form-data">
+                            <input id="title" name="title" type="text" class="form-control" placeholder="title" max="255" maxlength="255" min="1" minlength="1" required>
+                            <input id="message" name="message" type="text" class="form-control" placeholder="message" max="255" maxlength="255" min="1" minlength="1" required>
+                            <input id="file" class="form-control" type="file" name="image" accept="image/*" />
+                            <button class="btn btn-primary btn-block" type="submit">submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
