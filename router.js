@@ -5,58 +5,49 @@ const path = require('path');
 const formidable = require('express-formidable');
 const fs = require('fs');
 const jimp = require('jimp');
-//const sharp = require('sharp');
-//const image = require('images');
-//const image = require('images');
-const CommentRoutes = express.Router();
+const HomeRoutes = express.Router();
 const pathToPublic = path.join(__dirname,'public');
 const pathToThumb = path.join(__dirname,'public','thumbnails');
 const pathToFsize = path.join(__dirname,'public','fullsizes');
-CommentRoutes.use(formidable({
+HomeRoutes.use(formidable({
     maxFileSize: 5 * 1024 * 1024,
     maxTotalFileSize: 5 * 1024 * 1024,
     encoding: 'utf-8',
-    uploadDir: path.join(pathToPublic, 'upload'), //@@changed
+    uploadDir: path.join(pathToPublic, 'upload'),
     multiples: true,
     keepExtensions: true
 }));
-// const PNG = require("pngjs").PNG;
-// https://github.com/oliver-moran/jimp#image-manipulation-methods-default-plugins
-const resizeThumb = async (image, object) => {
-    const payload = await jimp.read(image);
-    payload.resize(100, jimp.AUTO);
-    await payload.writeAsync(`${path.join(object.dir, object.name + `.png`)}`);
-    return true;
-};
-CommentRoutes.post('/', async function (req, res) {
+const settings = {
+    defaultExtIfGif: '.png',
+    defaultExtIfElse: '.png',
+    defaultQuality: 80,
+    defaultThumbnailResizeWidth: 100,
+    defaultFullsizeResizeWidth: 600,
+
+}
+HomeRoutes.post('/', async function (req, res) {
     if (req.fields?.title && req.fields?.message) {
-        //has title and message
         if (req.files?.image?.size !== 0 && req.files?.image?.name !== '') {
-            //has file image
             const imageFile = path.parse(req.files.image.path);
-            const finalExt = (imageFile.ext === '.gif') ? '.png' : '.png';
-            //const finalExt = (req.files.image.type === 'image/gif') ? '.gif' : '.png';
+            const finalExt = (imageFile.ext === '.gif') ? settings.defaultExtIfGif : settings.defaultExtIfElse;
             const loadPath = `${path.join(imageFile.dir, imageFile.base)}`;
             const thumbPath = `${path.join(pathToThumb, imageFile.name.replace('upload_','')+finalExt)}`;
             const fsizePath = `${path.join(pathToFsize, imageFile.name.replace('upload_','')+finalExt)}`;
-            console.log('file=> size: ', req.files.image.size, ' path: ', req.files.image.path, ' name: ', req.files.image.name, ' type: ', req.files.image.type, ' hash: ', req.files.image.hash, ' modAt: ', req.files.image.lastModifiedDate);
-            console.log('------------------------------')
-            console.log('fields=>', req.fields)
-            console.log('------------------------------')
-            console.log('image=> root: ', imageFile.root, ' dir: ', imageFile.dir, ' base: ', imageFile.base, ' ext: ', imageFile.ext, ' name: ', imageFile.name);
-            console.log('------------------------------')
-            console.assert(req.files.image.type === 'image/gif','image not .gif', req.files.image.type);
-            console.assert(req.files.image.type === 'image/jpg'||req.files.image.type==='image.jpeg','image not .jpg/jpeg', req.files.image.type);
-            console.assert(req.files.image.type === 'image/png','image not .png', req.files.image.type);
-            console.log('------------------------------')
-            console.log(loadPath, ' ', thumbPath, ' ', finalExt, req.files.image.type)
+            let sizes = {
+                original: {
+                    width: null,
+                    height: null,
+                },
+                
+            };
             try {
                 await jimp.read(loadPath)
                     .then(image => {
-                        console.log(`image2=> width: ${image.bitmap.width} height: ${image.bitmap.height}`);
+                        sizes.original.width = image.bitmap.width;
+                        sizes.original.height = image.bitmap.height;
                         return image
-                            .resize(100, jimp.AUTO)
-                            .quality(80)
+                            .resize(settings.defaultThumbnailResizeWidth, jimp.AUTO)
+                            .quality(settings.defaultQuality)
                             .writeAsync(thumbPath)
                     })
                     .catch(err => {
@@ -68,9 +59,11 @@ CommentRoutes.post('/', async function (req, res) {
                     try {
                         await jimp.read(loadPath)
                             .then(image => {
+                                sizes.original.width = image.bitmap.width;
+                                sizes.original.height = image.bitmap.height;
                                 return image
-                                    .resize(100, jimp.AUTO)
-                                    .quality(80)
+                                    .resize(settings.defaultThumbnailResizeWidth, jimp.AUTO)
+                                    .quality(settings.defaultQuality)
                                     .writeAsync(thumbPath)
                             })
                             .catch(err => {
@@ -85,8 +78,8 @@ CommentRoutes.post('/', async function (req, res) {
                 await jimp.read(loadPath)
                     .then(image => {
                         return image
-                            .resize(600, jimp.AUTO)
-                            .quality(80)
+                            .resize(settings.defaultFullsizeResizeWidth, jimp.AUTO)
+                            .quality(settings.defaultQuality)
                             .writeAsync(fsizePath)
                     })
                     .catch(err => {
@@ -99,8 +92,8 @@ CommentRoutes.post('/', async function (req, res) {
                         await jimp.read(loadPath)
                             .then(image => {
                                 return image
-                                    .resize(100, jimp.AUTO)
-                                    .quality(80)
+                                    .resize(settings.defaultFullsizeResizeWidth, jimp.AUTO)
+                                    .quality(settings.defaultQuality)
                                     .writeAsync(fsizePath)
                             })
                             .catch(err => {
@@ -116,16 +109,16 @@ CommentRoutes.post('/', async function (req, res) {
             }) } catch (err) {
                 if (err) throw err;
             }
-            res.render('home/home', { received: { title: req.fields?.title, message: req.fields?.message }, imagez: `/thumbnails/${imageFile.name.replace('upload_','')}${finalExt}`, imagez2: `/fullsizes/${imageFile.name.replace('upload_','')}${finalExt}` })
+            res.render('home/home', { fields: { title: req.fields?.title, message: req.fields?.message }, thumbnail: `/thumbnails/${imageFile.name.replace('upload_','')}${finalExt}`, fullsize: `/fullsizes/${imageFile.name.replace('upload_','')}${finalExt}`, stats: { original: {size: req.files.image.size, path: req.files.image.path, name: req.files.image.name, type: req.files.image.type, hash: req.files.image.hash, hash2: imageFile.name.replace('upload_',''), modAt: req.files.image.lastModifiedDate, width: sizes.original.width, height: sizes.original.height }} })
         }
         else {
             //error no image
-            res.render('home/home', { received: { title: req.fields?.title, message: req.fields?.message }, imagez: 'empty.png', imagez2: 'logo.png'})
+            res.render('home/home', { fields: { title: req.fields?.title, message: req.fields?.message }, thumbnail: 'empty.png', fullsize: 'logo.png', stats: null})
         }
     }
     else {
         //error title/message
-        res.render('home/home', { received: { title: 'no title', message: 'no message' }, imagez: 'empty.png', imagez2: 'logo.png'})
+        res.render('home/home', { fields: { title: 'no title', message: 'no message' }, thumbnail: 'empty.png', fullsize: 'logo.png', stats: null})
     }
 });
-module.exports = { "CommentRoutes": CommentRoutes };
+module.exports = { "HomeRoutes": HomeRoutes };

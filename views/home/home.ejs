@@ -35,11 +35,14 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col">
-                        <p><%= `${JSON.stringify(received)}` %></p>
-                        <p><%= `${imagez}` %></p>
-                        <p><%= `${imagez2}` %></p>
-                        <p><img class="img-fluid" src="<%=imagez%>" alt="image"></p>
-                        <p><img class="img-fluid" src="<%=imagez2%>" alt="image"></p>
+                        <p><%= `${JSON.stringify(fields)}` %></p>
+                        <p><%= `${thumbnail}` %></p>
+                        <p><%= `${thumbnail}` %></p>
+                        <p><%= `${JSON.stringify(stats)}` %></p>
+                        <div class="row">
+                            <div class="col"><img class="img-fluid" src="<%=thumbnail%>" alt="image"></div>
+                            <div class="col"><img class="img-fluid" src="<%=fullsize%>" alt="image"></div>
+                        </div>
                         <form id="newmessage" method="POST" action="/api" enctype="multipart/form-data">
                             <input id="title" name="title" type="text" class="form-control" placeholder="title" max="255" maxlength="255" min="1" minlength="1" required>
                             <input id="message" name="message" type="text" class="form-control" placeholder="message" max="255" maxlength="255" min="1" minlength="1" required>

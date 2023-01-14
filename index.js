@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const app = express();
 app.set('view engine', 'ejs');
-const CommentRoutes = require('./router');
+const HomeRoutes = require('./router');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
@@ -18,8 +18,8 @@ app.use((req, res, next) => {
 });
 app.use('/', express.static('public'))
 app.get('/', async function (req, res) {
-    res.render('home/home', { received: { title: 'empty', message: 'empty' }, imagez: 'empty.png', imagez2: 'logo.png' })
+    res.render('home/home', { fields: { title: 'empty', message: 'empty' }, thumbnail: 'empty.png', fullsize: 'logo.png', stats: {} })
 });
-app.use('/api',CommentRoutes.CommentRoutes);
+app.use('/api',HomeRoutes.HomeRoutes);
 
 app.listen(3002);
