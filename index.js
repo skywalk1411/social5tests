@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 });
 app.use('/', express.static('public'))
 app.get('/', async function (req, res) {
-    res.render('home/home', { received: { title: 'empty', message: 'empty' }, image: 'empty.png' })
+    res.render('home/home', { received: { title: 'empty', message: 'empty' }, imagez: 'empty.png', imagez2: 'logo.png' })
 });
 app.use('/api',CommentRoutes.CommentRoutes);
 
